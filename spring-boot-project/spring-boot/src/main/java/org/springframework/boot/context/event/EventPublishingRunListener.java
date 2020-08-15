@@ -54,7 +54,9 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 	public EventPublishingRunListener(SpringApplication application, String[] args) {
 		this.application = application;
 		this.args = args;
+		//构建SimpleApplicationEventMulticaster广播器
 		this.initialMulticaster = new SimpleApplicationEventMulticaster();
+		//遍历ApplicationListener并关联SimpleApplicationEventMulticaster广播器
 		for (ApplicationListener<?> listener : application.getListeners()) {
 			this.initialMulticaster.addApplicationListener(listener);
 		}
@@ -82,14 +84,25 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 				.multicastEvent(new ApplicationContextInitializedEvent(this.application, this.args, context));
 	}
 
+	/**
+	 * @Author Qiu Rui
+	 * @Description 到了该方法之后，上下文才算初始化完成，才可以通过上下文的publishEvent方法来进行事件的发布，在此之前的只能通过广播器广播发布
+	 * @Date 15:20 2020/8/15
+	 * @Param [context]
+	 * @return void
+	 **/
 	@Override
 	public void contextLoaded(ConfigurableApplicationContext context) {
+		//遍历application中的所有监听器实现类
 		for (ApplicationListener<?> listener : this.application.getListeners()) {
 			if (listener instanceof ApplicationContextAware) {
+				//将上线文设置到监听器内
 				((ApplicationContextAware) listener).setApplicationContext(context);
 			}
+			//将application中的监听器实现类全部添加到上下文中
 			context.addApplicationListener(listener);
 		}
+		//广播器广播事件
 		this.initialMulticaster.multicastEvent(new ApplicationPreparedEvent(this.application, this.args, context));
 	}
 
