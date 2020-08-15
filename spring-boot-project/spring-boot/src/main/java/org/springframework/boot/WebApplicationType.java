@@ -30,18 +30,24 @@ public enum WebApplicationType {
 	/**
 	 * The application should not run as a web application and should not start an
 	 * embedded web server.
+	 *
+	 * 非web应用类型
 	 */
 	NONE,
 
 	/**
 	 * The application should run as a servlet-based web application and should start an
 	 * embedded servlet web server.
+	 *
+	 * 基于servlet的web应用
 	 */
 	SERVLET,
 
 	/**
 	 * The application should run as a reactive web application and should start an
 	 * embedded reactive web server.
+	 *
+	 * 基于reactive的web应用类型
 	 */
 	REACTIVE;
 
@@ -58,7 +64,15 @@ public enum WebApplicationType {
 
 	private static final String REACTIVE_APPLICATION_CONTEXT_CLASS = "org.springframework.boot.web.reactive.context.ReactiveWebApplicationContext";
 
+	/**
+	 * @Author Qiu Rui
+	 * @Description 基于Classpath的web应用类型推断,基于Classpath中类是否存在来进行类型推断
+	 * @Date 12:38 2020/8/15
+	 * @Param []
+	 * @return org.springframework.boot.WebApplicationType
+	 **/
 	static WebApplicationType deduceFromClasspath() {
+		//ClassUtils.isPresent()通过反射创建指定的类，根据在创建过程中是否抛出异常来判断该类是否存在
 		if (ClassUtils.isPresent(WEBFLUX_INDICATOR_CLASS, null) && !ClassUtils.isPresent(WEBMVC_INDICATOR_CLASS, null)
 				&& !ClassUtils.isPresent(JERSEY_INDICATOR_CLASS, null)) {
 			return WebApplicationType.REACTIVE;
@@ -71,6 +85,13 @@ public enum WebApplicationType {
 		return WebApplicationType.SERVLET;
 	}
 
+	/**
+	 * @Author Qiu Rui
+	 * @Description 基于ApplicationContext的web应用类型推断
+	 * @Date 12:45 2020/8/15
+	 * @Param [applicationContextClass]
+	 * @return org.springframework.boot.WebApplicationType
+	 **/
 	static WebApplicationType deduceFromApplicationContext(Class<?> applicationContextClass) {
 		if (isAssignable(SERVLET_APPLICATION_CONTEXT_CLASS, applicationContextClass)) {
 			return WebApplicationType.SERVLET;

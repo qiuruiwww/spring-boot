@@ -201,6 +201,9 @@ public class SpringApplication {
 
 	private Class<?> mainApplicationClass;
 
+	/**
+	 * Banner 配置参数
+	 */
 	private Banner.Mode bannerMode = Banner.Mode.CONSOLE;
 
 	private boolean logStartupInfo = true;
@@ -258,8 +261,8 @@ public class SpringApplication {
 	 * beans from the specified primary sources (see {@link SpringApplication class-level}
 	 * documentation for details. The instance can be customized before calling
 	 * {@link #run(String...)}.
-	 * @param resourceLoader the resource loader to use
-	 * @param primarySources the primary bean sources
+	 * @param resourceLoader the resource loader to use  资源加载的接口，在spring boot启动时打印对应的banner信息，默认采用的是DefaultResourceLoader
+	 * @param primarySources the primary bean sources  默认传入spring boot的入口类
 	 * @see #run(Class, String[])
 	 * @see #setSources(Set)
 	 */
@@ -268,16 +271,32 @@ public class SpringApplication {
 		this.resourceLoader = resourceLoader;
 		Assert.notNull(primarySources, "PrimarySources must not be null");
 		this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
+		//推断web应用类型
 		this.webApplicationType = WebApplicationType.deduceFromClasspath();
+		//加载并初始化ApplicationContextInitializer及相关实现类
+		//ApplicationContextInitializer是spring ioc容器提供的一个接口，它是一个回调接口，主要的目的是允许用户在ConfigurableApplicationContext类型(或其子类型)
+		// 的ApplicationContext做refresh方法调用刷新之前，对ConfigurableApplicationContext实列做进一步的设置或者处理。
 		setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
+		//加载并初始化ApplicationListener及相关实现类
 		setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
+		//推断main方法class类
 		this.mainApplicationClass = deduceMainApplicationClass();
 	}
 
+	/**
+	 * @Author Qiu Rui
+	 * @Description 推断main方法class类
+	 * @Date 13:20 2020/8/15
+	 * @Param []
+	 * @return java.lang.Class<?>
+	 **/
 	private Class<?> deduceMainApplicationClass() {
 		try {
+			//获取栈元素数组
 			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
+			//遍历栈元素数组
 			for (StackTraceElement stackTraceElement : stackTrace) {
+				//匹配第一个main方法，并返回
 				if ("main".equals(stackTraceElement.getMethodName())) {
 					return Class.forName(stackTraceElement.getClassName());
 				}
@@ -285,6 +304,7 @@ public class SpringApplication {
 		}
 		catch (ClassNotFoundException ex) {
 			// Swallow and continue
+			//发生异常忽略该异常继续执行
 		}
 		return null;
 	}
@@ -416,28 +436,56 @@ public class SpringApplication {
 				getSpringFactoriesInstances(SpringApplicationRunListener.class, types, this, args));
 	}
 
+	/**
+	 * @Author Qiu Rui
+	 * @Description 获得实列
+	 * @Date 12:59 2020/8/15
+	 * @Param [type]
+	 * @return java.util.Collection<T>
+	 **/
 	private <T> Collection<T> getSpringFactoriesInstances(Class<T> type) {
 		return getSpringFactoriesInstances(type, new Class<?>[] {});
 	}
 
+	/**
+	 * @Author Qiu Rui
+	 * @Description 获得实列
+	 * @Date 13:00 2020/8/15
+	 * @Param [type, parameterTypes, args]
+	 * @return java.util.Collection<T>
+	 **/
 	private <T> Collection<T> getSpringFactoriesInstances(Class<T> type, Class<?>[] parameterTypes, Object... args) {
 		ClassLoader classLoader = getClassLoader();
 		// Use names and ensure unique to protect against duplicates
+		//加载META-INF/spring.factories中的对应配置
 		Set<String> names = new LinkedHashSet<>(SpringFactoriesLoader.loadFactoryNames(type, classLoader));
+		//创建解析配置文件META-INF/spring.factories中解析出来的实列
 		List<T> instances = createSpringFactoriesInstances(type, parameterTypes, classLoader, args, names);
+		//排序操作
 		AnnotationAwareOrderComparator.sort(instances);
 		return instances;
 	}
 
 	@SuppressWarnings("unchecked")
+	/**
+	 * @Author Qiu Rui
+	 * @Description 创建解析配置文件META-INF/spring.factories中解析出来的实列
+	 * @Date 13:05 2020/8/15
+	 * @Param [type, parameterTypes, classLoader, args, names]
+	 * @return java.util.List<T>
+	 **/
 	private <T> List<T> createSpringFactoriesInstances(Class<T> type, Class<?>[] parameterTypes,
 			ClassLoader classLoader, Object[] args, Set<String> names) {
 		List<T> instances = new ArrayList<>(names.size());
+		//遍历加载到的全限定名
 		for (String name : names) {
 			try {
+				//获取class
 				Class<?> instanceClass = ClassUtils.forName(name, classLoader);
 				Assert.isAssignable(type, instanceClass);
+				//获取有参构造器
 				Constructor<?> constructor = instanceClass.getDeclaredConstructor(parameterTypes);
+				//创建对象
 				T instance = (T) BeanUtils.instantiateClass(constructor, args);
 				instances.add(instance);
 			}
@@ -1223,6 +1271,9 @@ public class SpringApplication {
 	 * @return the running {@link ApplicationContext}
 	 */
 	public static ConfigurableApplicationContext run(Class<?>[] primarySources, String[] args) {
+		//创建SpringApplication对象并执行run方法
+		//primarySources为加载的主资源类，通常为入口类
+		//args为传递给应用的参数信息
 		return new SpringApplication(primarySources).run(args);
 	}
 

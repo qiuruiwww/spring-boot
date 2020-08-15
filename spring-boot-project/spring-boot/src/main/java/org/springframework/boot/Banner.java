@@ -46,16 +46,22 @@ public interface Banner {
 
 		/**
 		 * Disable printing of the banner.
+		 *
+		 * 关闭banner信息
 		 */
 		OFF,
 
 		/**
 		 * Print the banner to System.out.
+		 *
+		 * 控制台打印banner信息
 		 */
 		CONSOLE,
 
 		/**
 		 * Print the banner to the log file.
+		 *
+		 * 日志文件打印banner信息
 		 */
 		LOG
 

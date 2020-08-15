@@ -35,6 +35,8 @@ import org.springframework.util.StringUtils;
  * {@link ApplicationContextInitializer} that delegates to other initializers that are
  * specified under a {@literal context.initializer.classes} environment property.
  *
+ * 解析通过application.properties或者application.yml配置的自定义ApplicationContextInitializer实现，调用自定义实现的initialize方法
+ *
  * @author Dave Syer
  * @author Phillip Webb
  * @since 1.0.0
@@ -104,6 +106,7 @@ public class DelegatingApplicationContextInitializer
 			List<ApplicationContextInitializer<?>> initializers) {
 		initializers.sort(new AnnotationAwareOrderComparator());
 		for (ApplicationContextInitializer initializer : initializers) {
+			//调用自定义的ApplicationContextInitializer实现类的initialize方法
 			initializer.initialize(context);
 		}
 	}
