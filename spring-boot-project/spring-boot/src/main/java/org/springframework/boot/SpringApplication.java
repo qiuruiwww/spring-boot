@@ -208,6 +208,9 @@ public class SpringApplication {
 
 	private boolean logStartupInfo = true;
 
+	/**
+	 * 是否支持命令行参数
+	 */
 	private boolean addCommandLineProperties = true;
 
 	private boolean addConversionService = true;
@@ -636,7 +639,7 @@ public class SpringApplication {
 		if (this.defaultProperties != null && !this.defaultProperties.isEmpty()) {
 			sources.addLast(new MapPropertySource("defaultProperties", this.defaultProperties));
 		}
-		//如果命令行属性存在
+		//如果命令行属性未被禁用并且存在
 		if (this.addCommandLineProperties && args.length > 0) {
 			String name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;
 			//如果默认属性资源中不包含该命令，则将命令行属性放置在第一位，如果包含，则通过CompositePropertySource进行设置
