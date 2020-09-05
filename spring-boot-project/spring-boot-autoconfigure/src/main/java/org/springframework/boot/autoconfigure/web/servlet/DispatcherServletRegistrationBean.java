@@ -37,6 +37,9 @@ public class DispatcherServletRegistrationBean extends ServletRegistrationBean<D
 	/**
 	 * Create a new {@link DispatcherServletRegistrationBean} instance for the given
 	 * servlet and path.
+	 *
+	 * 根据指定的DispatcherServlet和给订的path创建DispatcherServletRegistrationBean
+	 *
 	 * @param servlet the dispatcher servlet
 	 * @param path the dispatcher servlet path
 	 */
@@ -52,11 +55,25 @@ public class DispatcherServletRegistrationBean extends ServletRegistrationBean<D
 		return this.path;
 	}
 
+	/**
+	 * @Author Qiu Rui
+	 * @Description 重写父类的方法，但是抛出异常，相当于禁用该操作
+	 * @Date 11:47 2020/9/5
+	 * @Param [urlMappings]
+	 * @return void
+	 **/
 	@Override
 	public void setUrlMappings(Collection<String> urlMappings) {
 		throw new UnsupportedOperationException("URL Mapping cannot be changed on a DispatcherServlet registration");
 	}
 
+	/**
+	 * @Author Qiu Rui
+	 * @Description 重写父类的方法，但是抛出异常，相当于禁用该操作
+	 * @Date 11:47 2020/9/5
+	 * @Param [urlMappings]
+	 * @return void
+	 **/
 	@Override
 	public void addUrlMappings(String... urlMappings) {
 		throw new UnsupportedOperationException("URL Mapping cannot be changed on a DispatcherServlet registration");

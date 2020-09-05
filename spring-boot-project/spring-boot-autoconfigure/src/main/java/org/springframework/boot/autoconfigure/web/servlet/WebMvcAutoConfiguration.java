@@ -299,18 +299,22 @@ public class WebMvcAutoConfiguration {
 
 		@Override
 		public void addResourceHandlers(ResourceHandlerRegistry registry) {
+			//判断默认资源处理器是否为不可用状态
 			if (!this.resourceProperties.isAddMappings()) {
 				logger.debug("Default resource handling disabled");
 				return;
 			}
 			Duration cachePeriod = this.resourceProperties.getCache().getPeriod();
 			CacheControl cacheControl = this.resourceProperties.getCache().getCachecontrol().toHttpCacheControl();
+			//针对webjars做特殊的判断处理
 			if (!registry.hasMappingForPattern("/webjars/**")) {
+				//不存在针对webjars的配置，则添加默认路径
 				customizeResourceHandlerRegistration(registry.addResourceHandler("/webjars/**")
 						.addResourceLocations("classpath:/META-INF/resources/webjars/")
 						.setCachePeriod(getSeconds(cachePeriod)).setCacheControl(cacheControl));
 			}
 			String staticPathPattern = this.mvcProperties.getStaticPathPattern();
+			//如果当前的ResourceHandlerRegistration里面资源映射没有“/**”，则启用默认的静态资源处理
 			if (!registry.hasMappingForPattern(staticPathPattern)) {
 				customizeResourceHandlerRegistration(registry.addResourceHandler(staticPathPattern)
 						.addResourceLocations(getResourceLocations(this.resourceProperties.getStaticLocations()))
@@ -395,12 +399,20 @@ public class WebMvcAutoConfiguration {
 					resourceUrlProvider);
 		}
 
+		/**
+		 * @Author Qiu Rui
+		 * @Description 查找默认路径下的欢迎页面
+		 * @Date 13:48 2020/9/5
+		 * @Param [applicationContext, mvcConversionService, mvcResourceUrlProvider]
+		 * @return org.springframework.boot.autoconfigure.web.servlet.WelcomePageHandlerMapping
+		 **/
 		@Bean
 		public WelcomePageHandlerMapping welcomePageHandlerMapping(ApplicationContext applicationContext,
 				FormattingConversionService mvcConversionService, ResourceUrlProvider mvcResourceUrlProvider) {
 			WelcomePageHandlerMapping welcomePageHandlerMapping = new WelcomePageHandlerMapping(
 					new TemplateAvailabilityProviders(applicationContext), applicationContext, getWelcomePage(),
 					this.mvcProperties.getStaticPathPattern());
+			//设置拦截器
 			welcomePageHandlerMapping.setInterceptors(getInterceptors(mvcConversionService, mvcResourceUrlProvider));
 			return welcomePageHandlerMapping;
 		}

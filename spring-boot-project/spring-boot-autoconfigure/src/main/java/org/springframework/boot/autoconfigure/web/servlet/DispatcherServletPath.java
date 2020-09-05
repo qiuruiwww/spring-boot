@@ -24,6 +24,8 @@ import org.springframework.web.servlet.DispatcherServlet;
  * {@link DispatcherServletAutoConfiguration#DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME
  * default} {@link DispatcherServlet}.
  *
+ * 提供自动配置所需的path信息
+ *
  * @author Madhura Bhave
  * @author Stephane Nicoll
  * @since 2.0.4
@@ -70,6 +72,9 @@ public interface DispatcherServletPath {
 
 	/**
 	 * Return a URL mapping pattern that can be used with a
+	 *
+	 * 获取servlet的url匹配
+	 *
 	 * {@link ServletRegistrationBean} to map the dispatcher servlet.
 	 * @return the path as a servlet URL mapping
 	 */
