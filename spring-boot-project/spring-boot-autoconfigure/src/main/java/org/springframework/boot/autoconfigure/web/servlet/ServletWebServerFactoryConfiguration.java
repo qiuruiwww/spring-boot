@@ -64,6 +64,7 @@ class ServletWebServerFactoryConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass({ Servlet.class, Tomcat.class, UpgradeProtocol.class })
+	//当前容器内不存在ServletWebServerFactory
 	@ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
 	static class EmbeddedTomcat {
 

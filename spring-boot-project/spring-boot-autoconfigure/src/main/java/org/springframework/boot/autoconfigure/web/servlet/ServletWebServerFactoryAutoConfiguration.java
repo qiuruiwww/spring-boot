@@ -117,6 +117,7 @@ public class ServletWebServerFactoryAutoConfiguration {
 		}
 
 		private void registerSyntheticBeanIfMissing(BeanDefinitionRegistry registry, String name, Class<?> beanClass) {
+			//检查指定类型的beanname是否存在，如果不存在则创建bean并注入容器中
 			if (ObjectUtils.isEmpty(this.beanFactory.getBeanNamesForType(beanClass, true, false))) {
 				RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
 				beanDefinition.setSynthetic(true);
