@@ -49,6 +49,7 @@ class DataSourceInitializerPostProcessor implements BeanPostProcessor, Ordered {
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof DataSource) {
 			// force initialization of this bean as soon as we see a DataSource
+			//遇到DataSource便初始化DataSourceInitializerInvoker
 			this.beanFactory.getBean(DataSourceInitializerInvoker.class);
 		}
 		return bean;

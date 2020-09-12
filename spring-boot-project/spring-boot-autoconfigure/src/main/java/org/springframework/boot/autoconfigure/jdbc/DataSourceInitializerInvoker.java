@@ -58,10 +58,13 @@ class DataSourceInitializerInvoker implements ApplicationListener<DataSourceSche
 
 	@Override
 	public void afterPropertiesSet() {
+		//获取DataSourceInitializer，基于DataSourceInitializer初始化DataSource
 		DataSourceInitializer initializer = getDataSourceInitializer();
 		if (initializer != null) {
+			//执行DDL语句(schema-*.sql)
 			boolean schemaCreated = this.dataSourceInitializer.createSchema();
 			if (schemaCreated) {
+				//初始化操作
 				initialize(initializer);
 			}
 		}
@@ -69,8 +72,10 @@ class DataSourceInitializerInvoker implements ApplicationListener<DataSourceSche
 
 	private void initialize(DataSourceInitializer initializer) {
 		try {
+			//发布DataSourceSchemaCreatedEvent事件
 			this.applicationContext.publishEvent(new DataSourceSchemaCreatedEvent(initializer.getDataSource()));
 			// The listener might not be registered yet, so don't rely on it.
+			//此时，监听器可能尚未注册，不能完全依赖，因此主动调用
 			if (!this.initialized) {
 				this.dataSourceInitializer.initSchema();
 				this.initialized = true;
@@ -86,6 +91,7 @@ class DataSourceInitializerInvoker implements ApplicationListener<DataSourceSche
 	public void onApplicationEvent(DataSourceSchemaCreatedEvent event) {
 		// NOTE the event can happen more than once and
 		// the event datasource is not used here
+		//事件可能发布多次，这里未使用数据源事件
 		DataSourceInitializer initializer = getDataSourceInitializer();
 		if (!this.initialized && initializer != null) {
 			initializer.initSchema();

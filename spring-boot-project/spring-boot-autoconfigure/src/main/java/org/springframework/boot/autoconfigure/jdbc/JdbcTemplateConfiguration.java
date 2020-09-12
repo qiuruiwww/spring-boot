@@ -37,8 +37,10 @@ class JdbcTemplateConfiguration {
 	@Bean
 	@Primary
 	JdbcTemplate jdbcTemplate(DataSource dataSource, JdbcProperties properties) {
+		//指定数据源创建JdbcTemplate
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		JdbcProperties.Template template = properties.getTemplate();
+		//设置配置文件中的配置到JdbcTemplate
 		jdbcTemplate.setFetchSize(template.getFetchSize());
 		jdbcTemplate.setMaxRows(template.getMaxRows());
 		if (template.getQueryTimeout() != null) {

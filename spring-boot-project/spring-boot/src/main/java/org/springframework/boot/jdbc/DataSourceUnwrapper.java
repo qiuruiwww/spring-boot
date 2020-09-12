@@ -50,22 +50,28 @@ public final class DataSourceUnwrapper {
 	 * @return an object that implements the target type or {@code null}
 	 */
 	public static <T> T unwrap(DataSource dataSource, Class<T> target) {
+		//检查dataSource是否能够转换为目标对象，如果可以转化返回对象
 		if (target.isInstance(dataSource)) {
 			return target.cast(dataSource);
 		}
+		//检查包装wrapper是否为dataSource的包装类，如果是则返回dataSource，否则返回null
 		T unwrapped = safeUnwrap(dataSource, target);
 		if (unwrapped != null) {
 			return unwrapped;
 		}
+		//判断DelegatingDataSource是否存在
 		if (DELEGATING_DATA_SOURCE_PRESENT) {
 			DataSource targetDataSource = DelegatingDataSourceUnwrapper.getTargetDataSource(dataSource);
 			if (targetDataSource != null) {
+				//递归调用
 				return unwrap(targetDataSource, target);
 			}
 		}
+		//代理判断处理
 		if (AopUtils.isAopProxy(dataSource)) {
 			Object proxyTarget = AopProxyUtils.getSingletonTarget(dataSource);
 			if (proxyTarget instanceof DataSource) {
+				//递归调用
 				return unwrap((DataSource) proxyTarget, target);
 			}
 		}
